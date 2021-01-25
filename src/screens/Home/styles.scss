@@ -1,0 +1,24 @@
+$red-color: red;
+.title {
+  display: flex;
+  justify-content: center;
+  font-size: 40px;
+  color: $red-color;
+}
+
+.container {
+  position: relative;
+}
+
+.add-button-container {
+  position: absolute;
+  right: 100px;
+  bottom: 50px
+}
+
+.cards-container {
+  display: flex;
+  justify-content: center;
+  padding: 50px;
+}
+
