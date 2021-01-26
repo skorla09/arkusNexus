@@ -1,6 +1,6 @@
 import { Dispatch } from 'redux';
 import { setUsersAction, loadingUsersAction, closeAddUserDialog, showMessageAction } from './actions';
-import { getList, deleteUser, createUser } from './api'
+import { getList, deleteUser, createUser, updateUser } from './api'
 import { User } from '../../types/common';
 
 export const getUsersList = () => {
@@ -27,12 +27,19 @@ export const deleteUserAction = (id: string = '') => {
   }
 }
 
-export const createUserAction = (user: User) => {
+export const createUserAction = (user: User, editMode: boolean = false, userId: string) => {
   return async (dispatch: Dispatch) => {
     try {
-      const response = await createUser(user)
+      let message = ''
+      if (editMode) {
+        message = 'User Updated!'
+        const rresponse = await (updateUser(userId, user))
+      } else {
+        const response = await createUser(user)
+        message = 'User Created!'
+      }
       dispatch(closeAddUserDialog())
-      dispatch(showMessageAction(true, 'User Created!'))
+      dispatch(showMessageAction(true, message))
     } catch (error) {
       console.log(error)
     }
