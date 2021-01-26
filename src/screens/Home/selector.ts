@@ -1,8 +1,10 @@
 import { createSelector } from 'reselect'
-import { User } from '../../types/common'
 
 const homeSelector = (state: any) => state.home
+const detailsSelector = (state: any) => state.details
 
-export const getHomeState = createSelector([homeSelector], (home) => {
-  return home
+export const getHomeState = createSelector([homeSelector, detailsSelector], (home, details) => {
+
+  const userToUpdate = details.userToUpdate
+  return { ...home, userToUpdate }
 })
