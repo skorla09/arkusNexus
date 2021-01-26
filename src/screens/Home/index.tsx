@@ -26,7 +26,7 @@ import { Button, DialogContentText } from "@material-ui/core";
 interface Props extends RouteComponentProps, Actions {
   getUsersList: () => void,
   deleteUserAction: (id?: string) => void
-  createUserAction: (user: User) => void
+  createUserAction: (user: User, editMode: boolean, userId: string) => void
   loading: boolean
   usersList: User[]
   openDialog: boolean
@@ -73,8 +73,8 @@ export class Home extends Component<Props> {
           {cards}
         </div>
         <AddUser open={openDialog} closeDialog={this.handleCloseDialog} isEditing={editMode} onConfirm={this.handleOnCreateUser} user={userToEdit} onChange={this.handleChange} />
-        <Snackbar open={showSuccesMessage} autoHideDuration={6000}>
-          <Alert severity="success">
+        <Snackbar open={showSuccesMessage} autoHideDuration={3000} onClose={this.handleCloseSnackbar}>
+          <Alert onClose={this.handleCloseSnackbar} severity="success">
             {message}
           </Alert>
         </Snackbar>
@@ -92,6 +92,10 @@ export class Home extends Component<Props> {
     )
   }
 
+  handleCloseSnackbar = (event?: React.SyntheticEvent, reason?: string) => {
+    const { showMessageAction } = this.props
+    showMessageAction(false, '')
+  }
   handleOpenDeleteModal = (id: string = '') => (evt: React.MouseEvent<HTMLButtonElement>) => {
     const { openDeleteModalAction, openDeleteModal } = this.props
     openDeleteModalAction(!openDeleteModal, id)
@@ -123,8 +127,8 @@ export class Home extends Component<Props> {
   }
 
   handleOnCreateUser = (evt: React.MouseEvent<HTMLButtonElement>) => {
-    const { createUserAction, userToEdit } = this.props
-    createUserAction(userToEdit)
+    const { createUserAction, userToEdit, editMode, userId } = this.props
+    createUserAction(userToEdit, editMode, userId)
   }
 
   handleChange = (id: string, value: string) => {

@@ -4,7 +4,6 @@ const cloudinary = require('cloudinary')
 const formData = require('express-form-data')
 const cors = require('cors')
 
-
 const app = express()
 
 cloudinary.config({ 
@@ -14,7 +13,7 @@ cloudinary.config({
 })
   
 app.use(cors({ 
-  origin: 'http://localhost:3000' 
+  origin: process.env.APP_URL
 })) 
 
 app.use(formData.parse())
