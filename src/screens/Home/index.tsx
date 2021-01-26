@@ -4,17 +4,23 @@ import { connect } from 'react-redux'
 import './Styles.scss'
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
+import Snackbar from '@material-ui/core/Snackbar'
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 import { RouteComponentProps } from "react-router-dom";
 import { getUsersList, deleteUserAction, createUserAction } from './thunkActions'
 import Actions, * as homeActions from './actions'
 import { getHomeState } from './selector'
-import './styles'
+import './styles.scss'
 
 import Card from '../../components/card'
 import AddUser from '../../components/AddUser'
 import { User } from '../../types/common'
-import { deleteUser } from "./api";
+import { Button, DialogContentText } from "@material-ui/core";
 
 
 interface Props extends RouteComponentProps, Actions {
@@ -24,6 +30,12 @@ interface Props extends RouteComponentProps, Actions {
   loading: boolean
   usersList: User[]
   openDialog: boolean
+  editMode: boolean
+  userId: string
+  userToEdit: User
+  showSuccesMessage: boolean
+  openDeleteModal: boolean
+  message: string
 }
 
 export class Home extends Component<Props> {
@@ -33,10 +45,21 @@ export class Home extends Component<Props> {
   }
 
   render() {
-    const { usersList, deleteUserAction: deleteUser, createUserAction, openDialog } = this.props
-    const cards = usersList.map((props, index) => (
-      <Card key={index} {...props} onDelete={evt => deleteUser(props.id)} onClick={this.handleClick(props.id)} />
+    const {
+      usersList,
+      showSuccesMessage,
+      openDialog,
+      editMode,
+      userToEdit,
+      openDeleteModal,
+      message
+    } = this.props
+
+    const cards = usersList.map((user, index) => (
+      <Card key={index} {...user} onDelete={this.handleOpenDeleteModal(user.id)} onClick={this.handleClick(user.id)} onEdit={this.handleEdit(user.id)} />
     ))
+
+    const Alert = (props: AlertProps) => (<MuiAlert elevation={6} variant="filled" {...props} />);
 
     return (
       <>
@@ -49,9 +72,34 @@ export class Home extends Component<Props> {
         <div className="cards-container">
           {cards}
         </div>
-        <AddUser open={openDialog} closeDialog={this.handleCloseDialog} />
+        <AddUser open={openDialog} closeDialog={this.handleCloseDialog} isEditing={editMode} onConfirm={this.handleOnCreateUser} user={userToEdit} onChange={this.handleChange} />
+        <Snackbar open={showSuccesMessage} autoHideDuration={6000}>
+          <Alert severity="success">
+            {message}
+          </Alert>
+        </Snackbar>
+        <Dialog open={openDeleteModal}>
+          <DialogTitle>Delete contact</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Are you sure yo want to delete this contanct?</DialogContentText>
+            <DialogActions>
+              <Button onClick={this.handleOpenDeleteModal('')}>No</Button>
+              <Button onClick={this.handleDeleteUser}>Yes</Button>
+            </DialogActions>
+          </DialogContent>
+        </Dialog>
       </>
     )
+  }
+
+  handleOpenDeleteModal = (id: string = '') => (evt: React.MouseEvent<HTMLButtonElement>) => {
+    const { openDeleteModalAction, openDeleteModal } = this.props
+    openDeleteModalAction(!openDeleteModal, id)
+  }
+
+  handleDeleteUser = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    const { deleteUserAction, userId } = this.props
+    deleteUserAction(userId)
   }
 
   handleClick = (id?: string) => (evt: React.MouseEvent<HTMLImageElement>) => {
@@ -65,8 +113,23 @@ export class Home extends Component<Props> {
   }
 
   handleCloseDialog = (evt: React.MouseEvent<HTMLButtonElement>) => {
-    const { openAddUserDialog } = this.props
-    openAddUserDialog(false)
+    const { closeAddUserDialog } = this.props
+    closeAddUserDialog(false)
+  }
+
+  handleEdit = (id?: string) => (evt: React.MouseEvent<HTMLButtonElement>) => {
+    const { setEditingModeAction } = this.props
+    setEditingModeAction(true, id)
+  }
+
+  handleOnCreateUser = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    const { createUserAction, userToEdit } = this.props
+    createUserAction(userToEdit)
+  }
+
+  handleChange = (id: string, value: string) => {
+    const { updateUserInfoAction } = this.props
+    updateUserInfoAction(id, value)
   }
 }
 

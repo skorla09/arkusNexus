@@ -1,48 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect, MouseEvent } from 'react';
 import { RouteComponentProps } from 'react-router-dom'
 import { connect } from 'react-redux'
+import Button from '@material-ui/core/Button'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import { User } from '../../types/common'
-import { getDetailsState } from './selector'
-import { compose } from 'redux';
+
 import { getUserAction } from './thunkActions'
+import { getUser } from './api';
+import './styles'
 
 interface Props extends RouteComponentProps {
   getUserAction: (id: string) => void
-  user: User
 }
-class UserDetails extends React.Component<Props, {}> {
-  componentDidMount() {
-    const { getUserAction, location: { pathname } } = this.props
-    const userId = pathname.split('/').pop() || ''
-    console.log(this.props)
-    console.log(location.pathname)
-    getUserAction(userId)
+
+const UserDetails = (props: Props) => {
+  const [user, setUser] = useState({} as User)
+  const [loading, setLoading] = useState(true)
+  const { location: { pathname } } = props
+  const userId = pathname.split('/').pop() || ''
+
+  const getUserData = async () => {
+    try {
+      const { data: { data: userData } } = await getUser(userId)
+      setUser(userData)
+      setLoading(false)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  render() {
-    console.log('======PROPS')
-    console.log(this.props)
-    const { user } = this.props
+  useEffect(() => {
+    getUserData()
+  }, [])
+  const handleBack = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    history.back()
+  }
 
-    const name = `${user.first_name} ${user.last_name}`
-    return (
-      <>
+  const name = `${user.first_name} ${user.last_name}`
+  return (
+    <>
+      <div className="container">
         <h2>User Details</h2>
-        <img src={user.avatar} />
-        <div>{user.first_name}</div>
-      </>
-    )
-
-  }
-}
-
-const mapStateToProps = (state: any) => {
-  const details = getDetailsState(state)
-  return { ...details }
+        {loading ? <CircularProgress /> : <img src={user.avatar} />}
+        <div>{name}</div>
+        <div>{user.email}</div>
+        <Button variant="outlined" onClick={handleBack} className="back-button">Back</Button>
+      </div>
+    </>
+  )
 }
 
 const UserDeatilsEnhanced = connect(
-  mapStateToProps,
+  null,
   { getUserAction }
 )(UserDetails)
 
