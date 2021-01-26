@@ -51,7 +51,7 @@ const AddUser = ({ open, closeDialog, user, onChange, onConfirm, uploading }: Pr
 
   return (
     <Dialog open={open} fullWidth>
-      <DialogTitle>Add User</DialogTitle>
+      <DialogTitle>Add Contact</DialogTitle>
       <DialogContent>
         <TextField
           value={first_name}
@@ -79,9 +79,9 @@ const AddUser = ({ open, closeDialog, user, onChange, onConfirm, uploading }: Pr
             <section>
               <div {...getRootProps()} className="upload">
                 <input {...getInputProps()} />
-                <p>click to select files</p>
+                <p>click here to select files</p>
               </div>
-              {loading ? <CircularProgress /> : <img src={avatar} className="img-placeholder" />}
+              {loading ? <CircularProgress /> : <img placeholder="avatar" src={avatar} className="img-placeholder" />}
             </section>
           )}
         </Dropzone>

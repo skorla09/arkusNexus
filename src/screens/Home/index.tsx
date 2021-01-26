@@ -17,7 +17,7 @@ import Actions, * as homeActions from './actions'
 import { getHomeState } from './selector'
 import './styles.scss'
 
-import Card from '../../components/card'
+import Card from '../../components/Card'
 import AddUser from '../../components/AddUser'
 import { User } from '../../types/common'
 import { Button, DialogContentText } from "@material-ui/core";
